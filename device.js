@@ -210,14 +210,14 @@ class Device {
     /* Update device capability or property state */
     updateState(val, instance) {
         const {id, capabilities, properties} = this.data;
-
         try {
-            const cp = [].concat(capabilities, properties).find(cp => (cp.state.instance === instance));
-            if (cp == undefined) throw new Error(`Can't instance '${instance}' in device '${id}'`);
-
-            const actType = String(cp.type).split('.')[2];
-            const value = this.getMappedValue(val, actType, false);
-            cp.state = {instance, value: convertToYandexValue(value, actType)};
+            const cps = [].concat(capabilities, properties).filter(cp => (cp.state.instance === instance));
+            if (cps === undefined || cps.length === 0) throw new Error(`Can't instance '${instance}' in device '${id}'`);
+            for (let cp of cps) {
+                const actType = String(cp.type).split('.')[2];
+                const value = this.getMappedValue(val, actType, false);
+                cp.state = {instance, value: convertToYandexValue(value, actType)};
+            }
         } catch(e) {
             logger.log('error', {message: `${e}`});
         }
